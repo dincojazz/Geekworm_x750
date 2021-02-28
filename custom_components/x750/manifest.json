@@ -1,0 +1,11 @@
+{
+  "domain": "x750",
+  "name": "X750 Power Sensor",
+  "documentation": "https://raspberrypiwiki.com/X750",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": [
+    "i2csense==0.0.4",
+    "smbus-cffi==0.5.1"
+  ]
+}
