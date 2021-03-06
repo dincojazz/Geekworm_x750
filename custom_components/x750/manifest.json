@@ -1,6 +1,7 @@
 {
   "domain": "x750",
   "name": "X750 Power Sensor",
+  "version": "1.0",
   "documentation": "https://raspberrypiwiki.com/X750",
   "dependencies": [],
   "codeowners": [],
