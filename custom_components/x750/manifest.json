@@ -1,10 +1,10 @@
 {
   "domain": "x750",
   "name": "X750 Power Sensor",
-  "version": "1.0",
+  "version": "1.0.1",
   "documentation": "https://raspberrypiwiki.com/X750",
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": [https://github.com/Beduir],
   "requirements": [
     "i2csense==0.0.4",
     "smbus-cffi==0.5.1"
