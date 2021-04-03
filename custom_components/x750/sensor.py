@@ -158,9 +158,9 @@ class X750Sensor(Entity):
         """Get the latest data from the X750 and update the states."""
         await self.hass.async_add_job(self.x750_client.update)
         if self.type == SENSOR_VOLTAGE:
-            self._state = round(self.x750_client.sensor_data.voltage, 1)
+            self._state = round(self.x750_client.sensor_data.voltage, 2)
         elif self.type == SENSOR_CAPACITY:
-            self._state = round(self.x750_client.sensor_data.capacity, 1)
+            self._state = round(self.x750_client.sensor_data.capacity, 2)
 
 class FieldData:
     """Structure for storing X750 sensor data."""
