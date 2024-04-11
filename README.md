@@ -2,7 +2,8 @@
 Home Assistant Geekworm x750 Addon based on Home Assistant Geekworm x720 Addon from user Beduir https://github.com/Beduir/x720.git
 
 Change fixes:
-   - Fixed deprecated async_add_job with async_add_executor_job
+   - 20240411:
+     Fixed deprecated async_add_job with async_add_executor_job
 
 Сompatibility:
    - Geekworm x750
