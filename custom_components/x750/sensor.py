@@ -44,7 +44,7 @@ async def async_setup_platform(hass, config, async_add_entities,
     """Set up the X750 sensor."""
     name = config.get(CONF_NAME)
 
-    sensor_handler = await hass.async_add_job(_setup_x750, config)
+    sensor_handler = await hass.async_add_executor_job(_setup_x750, config)
     if sensor_handler is None:
         return
 
@@ -156,7 +156,7 @@ class X750Sensor(Entity):
 
     async def async_update(self):
         """Get the latest data from the X750 and update the states."""
-        await self.hass.async_add_job(self.x750_client.update)
+        await self.hass.async_add_executor_job(self.x750_client.update)
         if self.type == SENSOR_VOLTAGE:
             self._state = round(self.x750_client.sensor_data.voltage, 2)
         elif self.type == SENSOR_CAPACITY:
