@@ -4,7 +4,7 @@
   "version": "1.0.2",
   "documentation": "https://raspberrypiwiki.com/X750",
   "dependencies": [],
-  "codeowners": ["https://github.com/Beduir"],
+  "codeowners": ["https://github.com/dincojazz"],
   "requirements": [
     "i2csense==0.0.4",
     "smbus-cffi==0.5.1"
