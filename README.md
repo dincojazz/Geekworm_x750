@@ -1,4 +1,4 @@
-# Geekworm_x750
+# Geekworm x750 UPS
 Home Assistant Geekworm x750 Addon based on Home Assistant Geekworm x720 Addon from user Beduir https://github.com/Beduir/x720.git
 
 Change fixes:
