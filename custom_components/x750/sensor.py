@@ -8,8 +8,7 @@ import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
-from homeassistant.const import (
-    CONF_NAME, CONF_MONITORED_CONDITIONS)
+from homeassistant.const import CONF_NAME, CONF_MONITORED_CONDITIONS
 from homeassistant.helpers.entity import Entity
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,38 +24,48 @@ SENSOR_VOLTAGE = 'voltage'
 SENSOR_CAPACITY = 'capacity'
 SENSOR_TYPES = {
     SENSOR_VOLTAGE: ['Voltage', 'V'],
-    SENSOR_CAPACITY: ['Capacity', '%']
+    SENSOR_CAPACITY: ['Capacity', '%'],
 }
 
 DEFAULT_MONITORED = [SENSOR_VOLTAGE, SENSOR_CAPACITY]
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_I2C_ADDRESS, default=DEFAULT_I2C_ADDRESS):
-        cv.positive_int,
-    vol.Optional(CONF_MONITORED_CONDITIONS, default=DEFAULT_MONITORED):
-        vol.All(cv.ensure_list, [vol.In(SENSOR_TYPES)]),
-    vol.Optional(CONF_I2C_BUS, default=DEFAULT_I2C_BUS): cv.positive_int,
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(
+            CONF_I2C_ADDRESS, default=DEFAULT_I2C_ADDRESS
+        ): cv.positive_int,
+        vol.Optional(
+            CONF_MONITORED_CONDITIONS, default=DEFAULT_MONITORED
+        ): vol.All(cv.ensure_list, [vol.In(SENSOR_TYPES)]),
+        vol.Optional(CONF_I2C_BUS, default=DEFAULT_I2C_BUS): cv.positive_int,
+    }
+)
 
-async def async_setup_platform(hass, config, async_add_entities,
-                               discovery_info=None):
+
+async def async_setup_platform(
+    hass, config, async_add_entities, discovery_info=None
+):
     """Set up the X750 sensor."""
     name = config.get(CONF_NAME)
 
-    sensor_handler = await hass.async_add_executor_job(_setup_x750, config)
+    sensor_handler = await hass.async_add_executor_job(_setup_X750, config)
     if sensor_handler is None:
         return
 
     dev = []
     for variable in config[CONF_MONITORED_CONDITIONS]:
-        dev.append(X750Sensor(
-            sensor_handler, variable, SENSOR_TYPES[variable][1], name))
+        dev.append(
+            X750Sensor(
+                sensor_handler, variable, SENSOR_TYPES[variable][1], name
+            )
+        )
 
     async_add_entities(dev)
     return
 
-def _setup_x750(config):
+
+def _setup_X750(config):
     """Set up and configure the X750 sensor."""
     from smbus import SMBus
 
@@ -67,19 +76,18 @@ def _setup_x750(config):
         sensor = X750(i2c_address, bus)
 
     except (RuntimeError, IOError):
-        _LOGGER.error("X750 sensor not detected at 0x%02x", i2c_address)
+        _LOGGER.error('X750 sensor not detected at 0x%02x', i2c_address)
         return None
 
-    sensor_handler = X750Handler(
-        sensor
-    )
+    sensor_handler = X750Handler(sensor)
 
     sleep(0.5)  # Wait for device to stabilize
     if not sensor_handler.sensor_data.voltage:
-        _LOGGER.error("X750 sensor failed to Initialize")
+        _LOGGER.error('X750 sensor failed to Initialize')
         return None
 
     return sensor_handler
+
 
 class X750Handler:
     """X750 sensor working in i2C bus."""
@@ -92,9 +100,7 @@ class X750Handler:
             self.voltage = None
             self.capacity = None
 
-    def __init__(
-            self, sensor
-    ):
+    def __init__(self, sensor):
         """Initialize the sensor handler."""
         self.sensor_data = X750Handler.SensorData()
         self._sensor = sensor
@@ -110,14 +116,15 @@ class X750Handler:
             self.sensor_data.voltage = self._sensor.data.voltage
             self.sensor_data.capacity = self._sensor.data.capacity
 
+
 class X750Sensor(Entity):
     """Implementation of the X750 sensor."""
 
-    def __init__(self, x750_client, sensor_type, temp_unit, name):
+    def __init__(self, X750_client, sensor_type, temp_unit, name):
         """Initialize the sensor."""
         self.client_name = name
         self._name = SENSOR_TYPES[sensor_type][0]
-        self.x750_client = x750_client
+        self.X750_client = X750_client
         self.temp_unit = temp_unit
         self.type = sensor_type
         self._state = None
@@ -139,15 +146,15 @@ class X750Sensor(Entity):
         if self.type == SENSOR_VOLTAGE:
             return 'mdi:flash'
         elif self.type == SENSOR_CAPACITY:
-          if isinstance(self._state, int) or isinstance(self._state, float):
-            if self._state >= 100:
-              return 'mdi:battery'
-            elif self._state >= 50:
-              return 'mdi:battery-50'
+            if isinstance(self._state, int) or isinstance(self._state, float):
+                if self._state >= 100:
+                    return 'mdi:battery'
+                elif self._state >= 50:
+                    return 'mdi:battery-50'
+                else:
+                    return 'mdi:battery-alert'
             else:
-              return 'mdi:battery-alert'
-          else:
-            return 'mdi:battery-unknown'
+                return 'mdi:battery-unknown'
 
     @property
     def unit_of_measurement(self):
@@ -156,11 +163,12 @@ class X750Sensor(Entity):
 
     async def async_update(self):
         """Get the latest data from the X750 and update the states."""
-        await self.hass.async_add_executor_job(self.x750_client.update)
+        await self.hass.async_add_executor_job(self.X750_client.update)
         if self.type == SENSOR_VOLTAGE:
-            self._state = round(self.x750_client.sensor_data.voltage, 2)
+            self._state = round(self.X750_client.sensor_data.voltage, 1)
         elif self.type == SENSOR_CAPACITY:
-            self._state = round(self.x750_client.sensor_data.capacity, 2)
+            self._state = round(self.X750_client.sensor_data.capacity, 1)
+
 
 class FieldData:
     """Structure for storing X750 sensor data."""
@@ -170,14 +178,15 @@ class FieldData:
         self.voltage = False
         self.capacity = None
 
+
 class X750Data:
     """Structure to represent X750 device."""
 
     def __init__(self):
         self.data = FieldData()
 
-class X750(X750Data):
 
+class X750(X750Data):
     def __init__(self, i2c_addr=DEFAULT_I2C_ADDRESS, i2c_device=None):
         X750Data.__init__(self)
 
@@ -185,6 +194,7 @@ class X750(X750Data):
         self._i2c = i2c_device
         if self._i2c is None:
             import smbus
+
             self._i2c = smbus.SMBus(1)
 
         self.get_sensor_data()
@@ -195,11 +205,11 @@ class X750(X750Data):
         """
 
         read = self._i2c.read_word_data(self.i2c_addr, 2)
-        swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-        self.data.voltage = swapped * 1.25 /1000/16
+        swapped = struct.unpack('<H', struct.pack('>H', read))[0]
+        self.data.voltage = swapped * 1.25 / 1000 / 16
 
         read = self._i2c.read_word_data(self.i2c_addr, 4)
-        swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-        self.data.capacity = swapped/256
+        swapped = struct.unpack('<H', struct.pack('>H', read))[0]
+        self.data.capacity = swapped / 256
 
         return True
